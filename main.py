@@ -127,10 +127,107 @@ def home(
             for h in history
         )
     )
+    
+    all_sessions = db.query(
+        SessionHistory
+    ).all()
 
+    study_dates = sorted(
+        list(
+            set(
+                datetime.strptime(
+                    s.session_date,
+                    "%Y-%m-%d"
+                ).date()
+                for s in all_sessions
+            )
+        )
+    )
+
+    current_streak = 0
+    best_streak = 0
+
+    if study_dates:
+
+        streak = 1
+
+        for i in range(
+            1,
+            len(study_dates)
+        ):
+
+            if (
+                study_dates[i]
+                -
+                study_dates[i - 1]
+            ).days == 1:
+
+                streak += 1
+
+            else:
+
+                best_streak = max(
+                    best_streak,
+                    streak
+                )
+
+                streak = 1
+
+        best_streak = max(
+            best_streak,
+            streak
+        )
+
+        temp_date = date.today()
+
+        while temp_date in study_dates:
+
+            current_streak += 1
+
+            temp_date -= timedelta(
+                days=1
+            )
+                    
+    weekly_categories = {}
+
+    for item in history:
+
+        if item.category not in weekly_categories:
+
+                weekly_categories[item.category] = 0
+
+        weekly_categories[item.category] += item.duration
+
+    total_hours = sum(
+        s.duration
+        for s in all_sessions
+    ) // 3600
+
+    achievements = []
+
+    if len(all_sessions) >= 1:
+            achievements.append(
+                "🏆 First Session"
+            )
+
+    if total_hours >= 10:
+            achievements.append(
+                "⏱ 10 Hours Logged"
+            )
+
+    if current_streak >= 7:
+            achievements.append(
+                "🔥 7 Day Streak"
+            )
+
+    if len(all_sessions) >= 100:
+            achievements.append(
+                "🚀 100 Sessions"
+            )
+
+    
     # TEMPORARY TEST VALUES
-    current_streak = 7
-    best_streak = 12
+
 
     db.close()
 
@@ -147,6 +244,8 @@ def home(
             "longest_session": longest_session,
             "categories_used": categories_used,
             "filter": filter,
+            "weekly_categories": weekly_categories,
+            "achievements": achievements,
 
             # STREAKS
             "current_streak": current_streak,
