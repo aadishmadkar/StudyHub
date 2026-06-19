@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>StudyHub</title>
+
+    <link
+        rel="stylesheet"
+        href="/static/style.css"
+    >
+
+</head>
+
+<body>
+
+<h1>📚 StudyHub</h1>
+
+<!-- Categories -->
+
+<div class="card">
+
+    <h2>Categories</h2>
+
+    <form action="/add-category" method="post">
+
+        <input
+            type="text"
+            name="subject_name"
+            placeholder="New Category"
+            required
+        >
+
+        <button type="submit">
+            Add
+        </button>
+
+    </form>
+
+    <hr>
+
+    {% for category in categories %}
+
+    <div
+    style="
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-top:10px;
+    ">
+
+        <span>
+            {{ category.name }}
+        </span>
+
+        <form
+        action="/delete-category/{{ category.id }}"
+        method="post">
+
+            <button
+            style="
+            background:#ef4444;
+            color:white;
+            ">
+                Delete
+            </button>
+
+        </form>
+
+    </div>
+
+    {% endfor %}
+
+</div>
+
+<!-- Progress -->
+
+<div class="card">
+
+    <h2>Today's Progress</h2>
+
+    <h3>
+
+        {{ daily_total // 3600 }}h
+
+        {{ (daily_total % 3600)//60 }}m
+
+        / {{ goal }}h
+
+    </h3>
+
+    <div
+    style="
+    background:#334155;
+    height:20px;
+    border-radius:10px;
+    overflow:hidden;
+    ">
+        <div style="background:#334155;height:20px;border-radius:10px;overflow:hidden;">
+
+            <div style="height:20px;width:50%;background:#22c55e;">
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Goal -->
+
+<div class="card">
+
+    <h2>Daily Goal</h2>
+
+    <form action="/save-goal" method="post">
+
+        <input
+        type="number"
+        name="goal"
+        value="{{ goal }}"
+        required>
+
+        <button>
+            Save Goal
+        </button>
+
+    </form>
+
+</div>
+
+<!-- Statistics -->
+
+<div class="card">
+
+    <h2>Statistics</h2>
+
+    <div class="stats-grid">
+
+        <div>
+
+            <b>Sessions</b>
+
+            <br>
+
+            {{ session_count }}
+
+        </div>
+
+        <div>
+
+            <b>Categories</b>
+
+            <br>
+
+            {{ categories_used }}
+
+        </div>
+
+        <div>
+
+            <b>Total Time</b>
+
+            <br>
+
+            {{ daily_total // 3600 }}h
+
+        </div>
+
+        <div>
+
+            <b>Longest</b>
+
+            <br>
+
+            {{ longest_session // 60 }} min
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Streaks -->
+
+<div class="card">
+
+    <h2>🔥 Streaks</h2>
+
+    <p>
+
+        Current Streak:
+
+        <b>{{ current_streak }}</b>
+
+        days
+
+    </p>
+
+    <p>
+
+        Best Streak:
+
+        <b>{{ best_streak }}</b>
+
+        days
+
+    </p>
+
+</div>
+
+<!-- Start Session -->
+
+<div class="card">
+
+    <h2>Start Session</h2>
+
+    <form action="/start-session" method="post">
+
+        <label>Category</label>
+
+        <select
+        name="category"
+        required>
+
+            {% for category in categories %}
+
+            <option>
+
+                {{ category.name }}
+
+            </option>
+
+            {% endfor %}
+
+        </select>
+
+        <label>Task</label>
+
+        <input
+        type="text"
+        name="task"
+        placeholder="Enter task"
+        required>
+
+        <button
+        class="start"
+        type="submit">
+
+            Start Session
+
+        </button>
+
+    </form>
+
+</div>
+
+<!-- Current Session -->
+
+<div class="card">
+
+    <h2>Current Session</h2>
+
+    {% if active_session %}
+
+        <p>
+
+            <b>Category:</b>
+
+            {{ active_session.category }}
+
+        </p>
+
+        <p>
+
+            <b>Task:</b>
+
+            {{ active_session.task }}
+
+        </p>
+
+        <div
+        id="timer"
+        data-start="{{ active_session.start_time }}">
+        </div>
+
+        <form action="/stop-session" method="post">
+
+            <button
+            class="stop"
+            type="submit">
+
+                Stop Session
+
+            </button>
+
+        </form>
+
+    {% else %}
+
+        <p>No Active Session</p>
+
+    {% endif %}
+
+</div>
+
+<!-- Filters -->
+
+<div class="filter-buttons">
+
+    <a href="/?filter=today">
+        Today
+    </a>
+
+    <a href="/?filter=yesterday">
+        Yesterday
+    </a>
+
+    <a href="/?filter=week">
+        This Week
+    </a>
+
+    <a href="/?filter=all">
+        All Time
+    </a>
+
+</div>
+
+<!-- Session History -->
+
+<div class="card">
+
+    <h2>Session History</h2>
+
+    {% for item in history %}
+
+    <div class="session-card">
+
+        <b>
+
+            {{ item.category }}
+
+        </b>
+
+        <br><br>
+
+        {{ item.task }}
+
+        <br><br>
+
+        {% if item.notes %}
+
+            📝
+
+            {{ item.notes }}
+
+            <br><br>
+
+        {% endif %}
+
+        ⏱
+
+        {{ item.duration // 60 }}
+
+        minutes
+
+        <br>
+
+        📅
+
+        {{ item.session_date }}
+
+    </div>
+
+    {% endfor %}
+
+</div>
+
+<script src="/static/script.js"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>StudyHub TV</title>
+
+<style>
+
+body{
+    background:black;
+    color:white;
+    font-family:Arial;
+    text-align:center;
+    padding-top:100px;
+}
+
+.timer{
+    font-size:80px;
+    color:#22c55e;
+}
+
+.category{
+    font-size:60px;
+}
+
+.task{
+    font-size:40px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+{% if active_session %}
+
+<div class="category">
+
+{{ active_session.category }}
+
+</div>
+
+<br>
+
+<div class="task">
+
+{{ active_session.task }}
+
+</div>
+
+<br>
+
+<div
+class="timer"
+id="timer"
+data-start="{{ active_session.start_time }}"
+></div>
+
+{% else %}
+
+<h1>No Active Session</h1>
+
+{% endif %}
+
+<script>
+
+const timerElement =
+document.getElementById("timer");
+
+if(timerElement){
+
+const start =
+new Date(
+timerElement.dataset.start
+);
+
+function updateTimer(){
+
+const now =
+new Date();
+
+const diff =
+Math.floor(
+(now-start)/1000
+);
+
+const hrs =
+Math.floor(diff/3600);
+
+const mins =
+Math.floor(
+(diff%3600)/60
+);
+
+const secs =
+diff%60;
+
+timerElement.innerHTML =
+String(hrs).padStart(2,'0')
++ ":" +
+String(mins).padStart(2,'0')
++ ":" +
+String(secs).padStart(2,'0');
+}
+
+updateTimer();
+
+setInterval(
+updateTimer,
+1000
+);
+
+}
+
+</script>
+
+</body>
+
+</html>
